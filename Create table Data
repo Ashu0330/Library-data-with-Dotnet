@@ -1,0 +1,103 @@
+using Microsoft.AspNet.SignalR.Infrastructure;
+using System.Data;
+using System.Data.SqlClient;
+using System.Security.Principal;
+
+
+library.create_table();
+public class library
+{
+    public static string Sql_connection = "Server=KAMAL0000;Database=library;Trusted_Connection=True;Encrypt=True;TrustServerCertificate=True";
+    public static void create_table()
+    {
+        using (SqlConnection conn = new SqlConnection(Sql_connection))
+        {
+            conn.Open();
+            string tbl_publisher = @"	CREATE TABLE tbl_publisher (
+		publisher_PublisherName VARCHAR(100) PRIMARY KEY NOT NULL,
+		publisher_PublisherAddress VARCHAR(200) NOT NULL,
+		publisher_PublisherPhone VARCHAR(50) NOT NULL);";
+
+            using (SqlCommand cmd = new SqlCommand(tbl_publisher, conn))
+            {
+                cmd.ExecuteNonQuery();
+                Console.WriteLine("publisher Table created");
+            }
+            string tbl_book = @"CREATE TABLE tbl_book(
+        book_BookID INT PRIMARY KEY NOT NULL IDENTITY (1,1),
+        book_Title VARCHAR(100) NOT NULL,
+        book_PublisherName VARCHAR(100) NOT NULL,
+        FOREIGN KEY (book_PublisherName) REFERENCES tbl_publisher(publisher_PublisherName));";
+
+            using (SqlCommand cmd = new SqlCommand(tbl_book, conn))
+            {
+                cmd.ExecuteNonQuery();
+                Console.WriteLine("book Table created");
+            }
+
+            string tbl_library_branch = @"CREATE TABLE tbl_library_branch(
+        library_branch_BranchID INT PRIMARY KEY NOT NULL IDENTITY (1,1),
+		library_branch_BranchName VARCHAR(100) NOT NULL,
+        library_branch_BranchAddress VARCHAR(200) NOT NULL);";
+            using (SqlCommand cmd = new SqlCommand(tbl_library_branch, conn))
+            {
+                cmd.ExecuteNonQuery();
+                Console.WriteLine("library_branch Table created");
+            }
+            string tbl_borrower = @"CREATE TABLE tbl_borrower(
+        borrower_CardNo INT PRIMARY KEY NOT NULL IDENTITY (100,1),
+		borrower_BorrowerName VARCHAR(100) NOT NULL,
+        borrower_BorrowerAddress VARCHAR(200) NOT NULL,
+        borrower_BorrowerPhone VARCHAR(50) NOT NULL);";
+            using (SqlCommand cmd = new SqlCommand(tbl_borrower, conn))
+            {
+                cmd.ExecuteNonQuery();
+                Console.WriteLine("borrower Table created");
+            }
+            string tbl_book_loans = @"	CREATE TABLE tbl_book_loans (
+		book_loans_LoansID INT PRIMARY KEY NOT NULL IDENTITY (1,1),
+		book_loans_BookID INT NOT NULL,
+		book_loans_BranchID INT NOT NULL,
+		book_loans_CardNo INT NOT NULL,
+		book_loans_DateOut VARCHAR(50) NOT NULL,
+		book_loans_DueDate VARCHAR(50) NOT NULL,
+        FOREIGN KEY(book_loans_BookID) REFERENCES  tbl_book(book_BookID),
+        FOREIGN KEY(book_loans_BranchID) REFERENCES  tbl_library_branch(library_branch_BranchID),
+        FOREIGN KEY(book_loans_CardNo) REFERENCES  tbl_borrower(borrower_CardNo)
+
+	);";
+            using (SqlCommand cmd = new SqlCommand(tbl_book_loans, conn))
+            {
+                cmd.ExecuteNonQuery();
+                Console.WriteLine("book loans table created");
+            }
+
+            string tbl_book_copies = @"create table tbl_book_copies (
+		book_copies_CopiesID INT PRIMARY KEY NOT NULL IDENTITY (1,1),
+		book_copies_BookID INT NOT NULL ,
+		book_copies_BranchID INT NOT NULL ,
+		book_copies_No_Of_Copies INT NOT NULL,
+        FOREIGN KEY(book_copies_BookID) REFERENCES tbl_book(book_BookID),
+        FOREIGN KEY(book_copies_BranchID) REFERENCES tbl_library_branch(library_branch_BranchID),
+	);";
+            using (SqlCommand cmd = new SqlCommand(tbl_book_copies, conn))
+            {
+                cmd.ExecuteNonQuery();
+                Console.WriteLine("Book copies table created");
+            }
+            string tbl_book_authors = @"CREATE TABLE tbl_book_authors(
+        book_authors_AuthorID INT PRIMARY KEY NOT NULL IDENTITY (1,1),
+		book_authors_BookID INT NOT NULL ,
+        book_authors_AuthorName VARCHAR(50) NOT NULL,
+        FOREIGN KEY (book_authors_BookID) REFERENCES  tbl_book(book_BookID)
+	);";
+            using (SqlCommand cmd = new SqlCommand(tbl_book_authors, conn))
+            {
+                cmd.ExecuteNonQuery();
+                Console.WriteLine("author table created");
+            }
+        }
+    }
+}
+
+
